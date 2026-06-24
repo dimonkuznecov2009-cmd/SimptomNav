@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>СимптомНавигатор — умный помощник</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #f0f6fe 0%, #dce8f5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+        .container {
+            max-width: 920px;
+            width: 100%;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 44px 48px;
+            box-shadow: 0 30px 80px rgba(18, 52, 86, 0.18), 0 8px 32px rgba(0,0,0,0.04);
+            border: 1px solid rgba(255,255,255,0.6);
+            transition: all 0.3s;
+        }
+        @media (max-width: 640px) {
+            .container { padding: 24px 18px; border-radius: 24px; }
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #1a7de1, #0f5bb5);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(26, 125, 225, 0.35);
+        }
+        .logo h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0b2b4a;
+            letter-spacing: -0.5px;
+        }
+        .logo h1 span {
+            color: #1a7de1;
+        }
+        .badge {
+            background: #e8f0fe;
+            color: #1a5f8a;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 14px;
+            border-radius: 30px;
+            letter-spacing: 0.3px;
+        }
+        .subtitle {
+            color: #4a6f8f;
+            margin-bottom: 28px;
+            font-size: 15px;
+            border-left: 4px solid #1a7de1;
+            padding-left: 16px;
+            line-height: 1.5;
+        }
+
+        /* ===== WARNING ===== */
+        .warning {
+            background: #fff9e6;
+            border-left: 5px solid #f5a623;
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin-bottom: 28px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            font-size: 14px;
+            color: #7a6400;
+            line-height: 1.5;
+        }
+        .warning-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+        .warning strong { color: #5a4a00; }
+
+        /* ===== QUICK TAGS ===== */
+        .quick-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .quick-tag {
+            background: #eef4fa;
+            border: 1px solid #dce6ef;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            color: #1a4a6a;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .quick-tag:hover {
+            background: #d4e4f7;
+            border-color: #1a7de1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26,125,225,0.15);
+        }
+        .quick-tag:active { transform: scale(0.96); }
+
+        /* ===== FORM ===== */
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            color: #0b2b4a;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        label .required { color: #d32f2f; margin-left: 2px; }
+        textarea {
+            width: 100%;
+            padding: 16px 18px;
+            border: 2px solid #dfe8f0;
+            border-radius: 16px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.25s;
+            background: #fafcff;
+            line-height: 1.6;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #1a7de1;
+            box-shadow: 0 0 0 5px rgba(26,125,225,0.10);
+        }
+        .row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .row .form-group {
+            flex: 1;
+            min-width: 130px;
+        }
+        select, input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid #dfe8f0;
+            border-radius: 14px;
+            font-size: 15px;
+            background: #fafcff;
+            transition: all 0.25s;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #1a7de1;
+            box-shadow: 0 0 0 5px rgba(26,125,225,0.08);
+        }
+
+        /* ===== BMI CALCULATOR ===== */
+        .bmi-section {
+            background: linear-gradient(135deg, #e8f4fd, #dce8f5);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(26,125,225,0.15);
+        }
+        .bmi-section .bmi-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #0b2b4a;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+        .bmi-section .bmi-header span { font-size: 20px; }
+        .bmi-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .bmi-row .form-group {
+            flex: 1;
+            min-width: 100px;
+            margin-bottom: 0;
+        }
+        .bmi-row .form-group label {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .bmi-row input {
+            padding: 11px 14px;
+            border-radius: 12px;
+        }
+        .bmi-btn {
+            background: #1a7de1;
+            color: white;
+            border: none;
+            padding: 11px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .bmi-btn:hover {
+            background: #0f66c4;
+            transform: translateY(-1px);
+        }
+        .bmi-result {
+            display: none;
+            margin-top: 14px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid #dce6ef;
+            font-size: 14px;
+            animation: fadeUp 0.4s ease;
+        }
+        .bmi-result .bmi-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0b2b4a;
+        }
+        .bmi-result .bmi-category {
+            font-weight: 600;
+            padding: 2px 14px;
+            border-radius: 30px;
+            display: inline-block;
+            font-size: 13px;
+            margin-left: 8px;
+        }
+        .bmi-cat-underweight { background: #fff3cd; color: #856404; }
+        .bmi-cat-normal { background: #d4edda; color: #155724; }
+        .bmi-cat-overweight { background: #fff3cd; color: #856404; }
+        .bmi-cat-obese { background: #f8d7da; color: #721c24; }
+
+        /* ===== BUTTON ===== */
+        .btn {
+            background: linear-gradient(135deg, #1a7de1, #0f5bb5);
+            color: white;
+            border: none;
+            padding: 17px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.25s;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 8px 24px rgba(26,125,225,0.30);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(26,125,225,0.40);
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled {
+            background: #8ab3e8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn .icon { font-size: 22px; }
+
+        /* ===== LOADER ===== */
+        #loader {
+            display: none;
+            text-align: center;
+            padding: 28px 0 12px;
+            color: #1a7de1;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        .loader-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 4px solid #dfe8f0;
+            border-top: 4px solid #1a7de1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 14px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== RESULT ===== */
+        #result {
+            display: none;
+            margin-top: 32px;
+            padding: 28px 30px;
+            border-radius: 22px;
+            background: #f7faff;
+            border: 1px solid #dfe8f0;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .result-urgency {
+            font-size: 20px;
+            font-weight: 700;
+            padding: 16px 22px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .urgency-green { background: #e6f4ea; color: #1a5a2a; border-left: 6px solid #2e7d32; }
+        .urgency-yellow { background: #fff8e1; color: #7a6400; border-left: 6px solid #f5a623; }
+        .urgency-red { background: #fde8e8; color: #8a1c1c; border-left: 6px solid #d32f2f; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 14px;
+        }
+        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .info-card {
+            background: white;
+            padding: 16px 18px;
+            border-radius: 14px;
+            border: 1px solid #e8eff6;
+            transition: box-shadow 0.2s;
+        }
+        .info-card .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #6a8aa8;
+            font-weight: 700;
+        }
+        .info-card .value {
+            font-size: 16px;
+            font-weight: 500;
+            color: #0b2b4a;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .state-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0;
+        }
+        .state-list li {
+            padding: 10px 16px;
+            background: white;
+            margin-bottom: 6px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e8eff6;
+            transition: all 0.15s;
+        }
+        .state-list li:hover { background: #f5f9ff; border-color: #c8d8e8; }
+        .state-name { font-weight: 500; }
+        .state-prob { font-weight: 700; color: #1a7de1; min-width: 48px; text-align: right; }
+        .prob-bar-wrap {
+            width: 100px;
+            background: #e8eff6;
+            height: 6px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-left: 14px;
+        }
+        .prob-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #1a7de1, #4a9ff5);
+            border-radius: 6px;
+            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .sources-block {
+            font-size: 13px;
+            color: #4a6f8f;
+            background: #eef4fa;
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-top: 18px;
+            border: 1px solid #dce6ef;
+        }
+        .sources-block strong { color: #0b2b4a; }
+
+        .chip {
+            display: inline-block;
+            background: #e8eff6;
+            padding: 3px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            color: #1a4a6a;
+            margin: 3px 4px 3px 0;
+        }
+        .chip-matched {
+            background: #d4e4f7;
+            color: #0b2b4a;
+            font-weight: 500;
+        }
+        .mt-8 { margin-top: 8px; }
+        .mt-16 { margin-top: 16px; }
+        .flex { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 28px;
+            font-size: 13px;
+            color: #7a9ab8;
+            text-align: center;
+            border-top: 1px solid #e8eff6;
+            padding-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .footer span { opacity: 0.7; }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #eef4fa; border-radius: 6px; }
+        ::-webkit-scrollbar-thumb { background: #c8d8e8; border-radius: 6px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8bcd0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🏥</div>
+            <h1>Симптом<span>Навигатор</span></h1>
+        </div>
+        <span class="badge">⚡ v2.1 · офлайн</span>
+    </div>
+    <p class="subtitle">Опишите свои ощущения — получите персонализированные рекомендации по самопомощи и маршрутизацию к нужному специалисту</p>
+
+    <!-- ===== WARNING ===== -->
+    <div class="warning">
+        <span class="warning-icon">🚨</span>
+        <div>
+            <strong>Неотложные состояния:</strong> при острой боли в груди, потере сознания, сильном кровотечении, затруднённом дыхании или внезапной сильной боли — <strong>немедленно вызывайте скорую 103 или 112</strong>.
+        </div>
+    </div>
+
+    <!-- ===== QUICK TAGS ===== -->
+    <div class="quick-tags">
+        <span style="font-size:13px; color:#4a6f8f; margin-right:4px;">⬇ Быстрый ввод:</span>
+        <span class="quick-tag" data-text="головная боль, температура 38">🤕 Головная боль + температура</span>
+        <span class="quick-tag" data-text="боль в горле, кашель, температура 37.5">🤧 Горло + кашель</span>
+        <span class="quick-tag" data-text="одышка, боль в груди, слабость">❤️ Боль в груди</span>
+        <span class="quick-tag" data-text="боль в животе, тошнота, рвота">🤢 Боль в животе</span>
+        <span class="quick-tag" data-text="кашель, температура 39, слабость">🫁 Кашель + высокая температура</span>
+    </div>
+
+    <!-- ===== BMI CALCULATOR ===== -->
+    <div class="bmi-section">
+        <div class="bmi-header">
+            <span>⚖️</span> Калькулятор индекса массы тела (ИМТ)
+        </div>
+        <div class="bmi-row">
+            <div class="form-group">
+                <label for="bmiWeight">Вес (кг)</label>
+                <input type="number" id="bmiWeight" placeholder="70" min="10" max="400" step="0.5">
+            </div>
+            <div class="form-group">
+                <label for="bmiHeight">Рост (см)</label>
+                <input type="number" id="bmiHeight" placeholder="175" min="50" max="280" step="0.5">
+            </div>
+            <button class="bmi-btn" id="bmiBtn">Рассчитать ИМТ</button>
+        </div>
+        <div class="bmi-result" id="bmiResult">
+            <div>
+                <span class="bmi-value" id="bmiValue">—</span>
+                <span class="bmi-category" id="bmiCategory">—</span>
+            </div>
+            <div style="margin-top:6px; font-size:14px; color:#4a6f8f;" id="bmiDescription"></div>
+        </div>
+    </div>
+
+    <!-- ===== FORM ===== -->
+    <form id="symptomForm">
+        <div class="form-group">
+            <label for="symptoms">Опишите ваши симптомы <span class="required">*</span></label>
+            <textarea id="symptoms" placeholder="Например: головная боль, температура 38.5, боль в горле, кашель, слабость..." required></textarea>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label for="age">Возраст</label>
+                <input type="number" id="age" placeholder="Например: 30" min="0" max="120">
+            </div>
+            <div class="form-group">
+                <label for="gender">Пол</label>
+                <select id="gender">
+                    <option value="">Не указан</option>
+                    <option value="male">Мужской</option>
+                    <option value="female">Женский</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="weight">Вес (кг)</label>
+                <input type="number" id="weight" placeholder="Например: 70" min="10" max="300" step="0.5">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="conditions">Хронические заболевания и аллергии</label>
+            <input type="text" id="conditions" placeholder="Например: гипертония, сахарный диабет, аллергия на пенициллин..." style="width:100%;">
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">
+            <span class="icon">🔍</span> Анализировать симптомы
+        </button>
+    </form>
+
+    <!-- ===== LOADER ===== -->
+    <div id="loader">
+        <span class="loader-spinner"></span> Анализируем симптомы и подбираем рекомендации...
+    </div>
+
+    <!-- ===== RESULT ===== -->
+    <div id="result">
+        <div id="urgencyBlock" class="result-urgency"></div>
+
+        <div class="grid-2">
+            <div class="info-card">
+                <div class="label">🩺 Рекомендуемый специалист</div>
+                <div class="value" id="specialistInfo">—</div>
+            </div>
+            <div class="info-card">
+                <div class="label">📊 Уровень срочности</div>
+                <div class="value" id="urgencyLabel">—</div>
+            </div>
+        </div>
+
+        <!-- ИМТ в результатах -->
+        <div id="resultBmiBlock" style="display:none; margin-top:10px;">
+            <div class="info-card" style="background:#e8f4fd; border-color:#b8d4e8;">
+                <div class="label">⚖️ Ваш ИМТ</div>
+                <div class="value" id="resultBmiValue">—</div>
+            </div>
+        </div>
+
+        <div class="mt-16">
+            <div style="font-weight:600; color:#0b2b4a; font-size:15px; display:flex; justify-content:space-between; align-items:center;">
+                <span>📋 Возможные состояния</span>
+                <span style="font-weight:400; font-size:13px; color:#6a8aa8;">на основе ваших симптомов</span>
+            </div>
+            <ul class="state-list" id="statesList">
+                <li style="color:#7a9ab8; justify-content:center;">Нет данных</li>
+            </ul>
+        </div>
+
+        <div class="grid-2 mt-16">
+            <div class="info-card">
+                <div class="label">💊 Самопомощь до визита к врачу</div>
+                <div class="value" id="selfHelpInfo" style="font-weight:400; font-size:15px;">—</div>
+            </div>
+            <div class="info-card">
+                <div class="label">📌 Итоговая рекомендация</div>
+                <div class="value" id="recommendationInfo" style="font-weight:400; font-size:15px;">—</div>
+            </div>
+        </div>
+
+        <div class="sources-block mt-16">
+            <strong>📚 Источники:</strong> <span id="sourcesInfo">Клинические рекомендации Минздрава РФ, ВОЗ</span>
+        </div>
+
+        <div class="flex mt-16" id="foundSymptomsBlock">
+            <span style="font-size:13px; color:#4a6f8f;">🔎 Распознанные симптомы:</span>
+            <span id="foundSymptomsTags" style="font-size:14px;"></span>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+        <span>🔒 Данные не сохраняются</span>
+        <span>📋 Основано на клинических рекомендациях</span>
+        <span>🏥 Сервис не заменяет врача</span>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    // ================================================================
+    // РАСШИРЕННАЯ БАЗА ЗНАНИЙ
+    // ================================================================
+    const KNOWLEDGE_BASE = [
+        {
+            id: 'headache',
+            keywords: ['головная боль', 'головную боль', 'головной боли', 'мигрень', 'головокружение', 'пульсирует в голове', 'давит на глаза'],
+            states: [
+                { name: 'Мигрень', weight: 40 },
+                { name: 'Головная боль напряжения', weight: 35 },
+                { name: 'Гипертония', weight: 15 },
+                { name: 'Кластерная головная боль', weight: 10 }
+            ],
+            specialist: 'Невролог',
+            urgency: 'yellow',
+            selfHelp: 'Отдых в тихом тёмном помещении, холодный компресс на лоб, обильное питьё. При мигрени — триптаны по назначению врача. Измерьте давление.',
+            sources: ['Клинические рекомендации Минздрава РФ по головной боли (2024)', 'МКБ-11 G43']
+        },
+        {
+            id: 'throat',
+            keywords: ['боль в горле', 'горло болит', 'першит', 'першение', 'красное горло', 'глотать больно', 'ангина'],
+            states: [
+                { name: 'ОРВИ / фарингит', weight: 45 },
+                { name: 'Тонзиллит', weight: 30 },
+                { name: 'Ангина стрептококковая', weight: 20 },
+                { name: 'Скарлатина', weight: 5 }
+            ],
+            specialist: 'ЛОР (оториноларинголог) или терапевт',
+            urgency: 'yellow',
+            selfHelp: 'Полоскание тёплым солевым раствором (1 ч.л. соли на стакан воды), тёплое питьё, пастилки с мёдом или лидокаином. При температуре >38.5°C — парацетамол или ибупрофен.',
+            sources: ['Клинические рекомендации Минздрава РФ по ОРВИ (2024)', 'NICE: Sore throat management']
+        },
+        {
+            id: 'fever',
+            keywords: ['температура', 'жар', 'лихорадка', 't', 'градус', '38', '39', '40', 'озноб', 'лихорадит'],
+            states: [
+                { name: 'ОРВИ', weight: 40 },
+                { name: 'Бактериальная инфекция', weight: 25 },
+                { name: 'Грипп', weight: 20 },
+                { name: 'Сепсис (требует исключения)', weight: 10 },
+                { name: 'Коронавирусная инфекция', weight: 5 }
+            ],
+            specialist: 'Терапевт',
+            urgency: 'yellow',
+            selfHelp: 'Обильное питьё (до 2–3 л/сутки), жаропонижающие (парацетамол или ибупрофен) при >38.5°C. При >39.5°C или сохраняющейся более 3 дней — срочно к врачу.',
+            sources: ['Клинические рекомендации по лихорадке (2024)', 'ВОЗ: ведение лихорадки']
+        },
+        {
+            id: 'cough',
+            keywords: ['кашель', 'кашляю', 'кашляет', 'сухой кашель', 'мокрый кашель', 'лающий кашель', 'коклюш'],
+            states: [
+                { name: 'ОРВИ / бронхит', weight: 35 },
+                { name: 'Аллергический кашель', weight: 25 },
+                { name: 'Бронхиальная астма', weight: 20 },
+                { name: 'Пневмония', weight: 20 }
+            ],
+            specialist: 'Терапевт или пульмонолог',
+            urgency: 'yellow',
+            selfHelp: 'Тёплое питьё, увлажнение воздуха (50–60%), ингаляции с физраствором. При сухом кашле — противокашлевые по назначению врача. При мокром — отхаркивающие.',
+            sources: ['Клинические рекомендации по кашлю (2024)', 'GINA 2024']
+        },
+        {
+            id: 'chest',
+            keywords: ['боль в груди', 'грудная боль', 'давит в груди', 'жжение в груди', 'сердце болит', 'стенокардия', 'тяжесть в груди'],
+            states: [
+                { name: 'Стенокардия', weight: 35 },
+                { name: 'Перикардит', weight: 20 },
+                { name: 'Плеврит', weight: 25 },
+                { name: 'ТЭЛА (требует исключения)', weight: 20 }
+            ],
+            specialist: 'Кардиолог',
+            urgency: 'red',
+            selfHelp: 'НЕМЕДЛЕННО ВЫЗОВИТЕ СКОРУЮ (103/112). До приезда — полный покой, полусидячее положение, расстегнуть стесняющую одежду. Не принимайте аспирин без назначения.',
+            sources: ['Клинические рекомендации по боли в груди (2024)', 'ESC 2023']
+        },
+        {
+            id: 'abdomen',
+            keywords: ['боль в животе', 'живот болит', 'живота', 'тошнота', 'рвота', 'изжога', 'гастрит', 'язва', 'спазм', 'кишечник'],
+            states: [
+                { name: 'Гастрит', weight: 30 },
+                { name: 'Язвенная болезнь', weight: 25 },
+                { name: 'Панкреатит', weight: 20 },
+                { name: 'Аппендицит', weight: 15 },
+                { name: 'Пищевое отравление', weight: 10 }
+            ],
+            specialist: 'Гастроэнтеролог или хирург',
+            urgency: 'yellow',
+            selfHelp: 'Голод, покой, холод на живот (грелка со льдом). НЕ принимать обезболивающие до осмотра врачом! При резкой, внезапной боли — немедленно к врачу или скорую.',
+            sources: ['Клинические рекомендации по боли в животе (2024)', 'ВОЗ']
+        },
+        {
+            id: 'breathing',
+            keywords: ['одышка', 'затруднённое дыхание', 'трудно дышать', 'не хватает воздуха', 'задыхаюсь', 'свистящее дыхание', 'хрипы'],
+            states: [
+                { name: 'Бронхиальная астма', weight: 35 },
+                { name: 'Пневмония', weight: 25 },
+                { name: 'Сердечная недостаточность', weight: 20 },
+                { name: 'ТЭЛА (тромбоэмболия)', weight: 20 }
+            ],
+            specialist: 'Пульмонолог или кардиолог',
+            urgency: 'red',
+            selfHelp: 'НЕМЕДЛЕННО ВЫЗОВИТЕ СКОРУЮ (103/112). До приезда — сидячее положение с опорой на руки, обеспечьте приток свежего воздуха, расстегните воротник.',
+            sources: ['Клинические рекомендации (2024)', 'GINA 2024']
+        },
+        {
+            id: 'weakness',
+            keywords: ['слабость', 'усталость', 'разбитость', 'нет сил', 'утомляемость', 'вялость', 'сонливость'],
+            states: [
+                { name: 'ОРВИ', weight: 30 },
+                { name: 'Анемия', weight: 25 },
+                { name: 'Стресс / переутомление', weight: 25 },
+                { name: 'Хроническая инфекция', weight: 10 },
+                { name: 'Дефицит витамина D или B12', weight: 10 }
+            ],
+            specialist: 'Терапевт',
+            urgency: 'green',
+            selfHelp: 'Отдых, полноценный сон (7–8 часов), обильное питьё, лёгкая пища, богатая белком и витаминами. Если слабость длится более недели — обратитесь к терапевту.',
+            sources: ['Клинические рекомендации (2024)']
+        },
+        {
+            id: 'nose',
+            keywords: ['насморк', 'нос заложен', 'сопли', 'ринит', 'выделения из носа', 'заложенность носа', 'чихание'],
+            states: [
+                { name: 'ОРВИ / ринит', weight: 50 },
+                { name: 'Аллергический ринит', weight: 35 },
+                { name: 'Синусит (гайморит)', weight: 15 }
+            ],
+            specialist: 'ЛОР или терапевт',
+            urgency: 'green',
+            selfHelp: 'Промывание носа солевым раствором (Аквамарис, физиологический), увлажнение воздуха, сосудосуживающие капли не более 5 дней. При аллергии — антигистаминные по назначению.',
+            sources: ['Клинические рекомендации по риниту (2024)']
+        },
+        {
+            id: 'back',
+            keywords: ['боль в спине', 'спина болит', 'поясница болит', 'прострел', 'люмбаго', 'ишиас', 'радикулит'],
+            states: [
+                { name: 'Остеохондроз', weight: 35 },
+                { name: 'Мышечное перенапряжение', weight: 30 },
+                { name: 'Радикулопатия (защемление нерва)', weight: 25 },
+                { name: 'Проблемы с почками', weight: 10 }
+            ],
+            specialist: 'Невролог или травматолог-ортопед',
+            urgency: 'yellow',
+            selfHelp: 'Покой, сухое тепло (грелка), противовоспалительные мази (диклофенак, кетопрофен — по назначению). При боли, отдающей в ногу или онемении — к неврологу.',
+            sources: ['Клинические рекомендации по боли в спине (2024)']
+        },
+        {
+            id: 'joints',
+            keywords: ['боль в суставах', 'суставы болят', 'артрит', 'артроз', 'хруст в суставах', 'опух сустав', 'покраснение сустава'],
+            states: [
+                { name: 'Остеоартроз', weight: 30 },
+                { name: 'Ревматоидный артрит', weight: 25 },
+                { name: 'Подагра', weight: 20 },
+                { name: 'Травма / растяжение', weight: 25 }
+            ],
+            specialist: 'Ревматолог или травматолог',
+            urgency: 'yellow',
+            selfHelp: 'Покой, холод на сустав (лёд в полотенце на 15–20 минут), возвышенное положение конечности. При сильной боли — НПВС (ибупрофен) после консультации с врачом.',
+            sources: ['Клинические рекомендации по артритам (2024)', 'EULAR 2024']
+        },
+        {
+            id: 'skin',
+            keywords: ['сыпь', 'зуд', 'кожа чешется', 'красные пятна', 'аллергия на коже', 'экзема', 'дерматит', 'крапивница'],
+            states: [
+                { name: 'Аллергическая реакция', weight: 40 },
+                { name: 'Крапивница', weight: 25 },
+                { name: 'Экзема / дерматит', weight: 20 },
+                { name: 'Инфекционное заболевание (ветрянка, корь)', weight: 15 }
+            ],
+            specialist: 'Дерматолог или аллерголог',
+            urgency: 'yellow',
+            selfHelp: 'Антигистаминные (лоратадин, цетиризин) при аллергии, холодные компрессы на зудящие участки, увлажняющие кремы. При сыпи с температурой — к врачу.',
+            sources: ['Клинические рекомендации по дерматитам (2024)']
+        },
+        {
+            id: 'urinary',
+            keywords: ['больно писать', 'жжение при мочеиспускании', 'цистит', 'частое мочеиспускание', 'кровь в моче', 'резь при мочеиспускании'],
+            states: [
+                { name: 'Цистит', weight: 45 },
+                { name: 'Уретрит', weight: 25 },
+                { name: 'Пиелонефрит', weight: 20 },
+                { name: 'Мочекаменная болезнь', weight: 10 }
+            ],
+            specialist: 'Уролог или терапевт',
+            urgency: 'yellow',
+            selfHelp: 'Обильное питьё (клюквенный морс, вода), тепло на низ живота, исключить острую пищу. При крови в моче или температуре >38°C — срочно к врачу.',
+            sources: ['Клинические рекомендации по циститу (2024)']
+        }
+    ];
+
+    // Ключевые слова усиления срочности
+    const URGENCY_BOOSTERS = [
+        'резкая', 'внезапная', 'острая', 'сильная', 'невыносимая', 'мучительная',
+        'выше 39', 'потеря сознания', 'обморок', 'не могу дышать', 'задыхаюсь',
+        'кровь', 'кровотечение', 'паралич', 'онемел', 'не двигается', 'не чувствую',
+        'рвота', 'многократная рвота', 'кровавая рвота', 'черный стул'
+    ];
+
+    // ================================================================
+    // ИМТ-КАЛЬКУЛЯТОР
+    // ================================================================
+    function calculateBMI(weight, height) {
+        if (!weight || !height || height <= 0) return null;
+        const heightM = height / 100;
+        return weight / (heightM * heightM);
+    }
+
+    function getBMICategory(bmi) {
+        if (bmi < 18.5) return { category: 'Недостаточный вес', class: 'bmi-cat-underweight', desc: 'Рекомендуется проконсультироваться с диетологом для коррекции питания.' };
+        if (bmi < 25) return { category: 'Нормальный вес', class: 'bmi-cat-normal', desc: 'Ваш вес в норме. Поддерживайте здоровый образ жизни.' };
+        if (bmi < 30) return { category: 'Избыточный вес', class: 'bmi-cat-overweight', desc: 'Рекомендуется контроль питания и увеличение физической активности.' };
+        if (bmi < 35) return { category: 'Ожирение I степени', class: 'bmi-cat-obese', desc: 'Рекомендуется консультация терапевта и диетолога для снижения веса.' };
+        if (bmi < 40) return { category: 'Ожирение II степени', class: 'bmi-cat-obese', desc: 'Необходима консультация терапевта и эндокринолога.' };
+        return { category: 'Ожирение III степени', class: 'bmi-cat-obese', desc: 'Требуется немедленная консультация врача-эндокринолога и диетолога.' };
+    }
+
+    // ================================================================
+    // ЯДРО АНАЛИЗА СИМПТОМОВ
+    // ================================================================
+    function analyzeSymptoms(input, age, gender, weight, conditions) {
+        const text = input.toLowerCase();
+        const foundItems = [];
+
+        for (const entry of KNOWLEDGE_BASE) {
+            let matched = false;
+            let matchedKeywords = [];
+            for (const kw of entry.keywords) {
+                if (text.includes(kw.toLowerCase())) {
+                    matched = true;
+                    matchedKeywords.push(kw);
+                }
+            }
+            if (matched) {
+                foundItems.push({
+                    ...entry,
+                    matchedKeywords: matchedKeywords
+                });
+            }
+        }
+
+        if (foundItems.length === 0) {
+            return {
+                error: true,
+                message: 'Не удалось распознать симптомы. Попробуйте ввести более конкретные жалобы. Если состояние тяжёлое — немедленно вызовите скорую 103/112.'
+            };
+        }
+
+        // Агрегация состояний
+        const stateMap = {};
+        for (const item of foundItems) {
+            for (const st of item.states) {
+                stateMap[st.name] = (stateMap[st.name] || 0) + st.weight;
+            }
+        }
+
+        const totalWeight = Object.values(stateMap).reduce((s, v) => s + v, 0);
+        const sortedStates = Object.entries(stateMap)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 6)
+            .map(([name, weight]) => ({
+                name,
+                probability: totalWeight > 0 ? Math.round((weight / totalWeight) * 100) : 0
+            }));
+
+        // Определение срочности
+        let urgency = 'green';
+        const urgencyLevels = foundItems.map(i => i.urgency);
+        if (urgencyLevels.includes('red')) urgency = 'red';
+        else if (urgencyLevels.includes('yellow')) urgency = 'yellow';
+
+        for (const word of URGENCY_BOOSTERS) {
+            if (text.includes(word.toLowerCase())) {
+                urgency = 'red';
+                break;
+            }
+        }
+
+        // Извлечение температуры
+        const tempMatches = text.match(/(\d{2,3}(?:[,.]\d{1})?)/g) || [];
+        let maxTemp = 0;
+        for (const m of tempMatches) {
+            const num = parseFloat(m.replace(',', '.'));
+            if (num >= 35 && num <= 43) maxTemp = Math.max(maxTemp, num);
+        }
+        if (maxTemp >= 39.5) urgency = 'red';
+        else if (maxTemp >= 38.5) urgency = 'yellow';
+
+        // Специалисты
+        const specialists = [...new Set(foundItems.map(i => i.specialist))];
+
+        // Самопомощь
+        const selfHelpItems = [...new Set(foundItems.map(i => i.selfHelp))];
+
+        // Источники
+        const sources = [...new Set(foundItems.flatMap(i => i.sources))];
+
+        // Рекомендация
+        const urgencyLabels = {
+            green: 'Симптомы не требуют экстренного вмешательства. Следуйте рекомендациям по самопомощи и наблюдайте за состоянием. При сохранении симптомов более 3 дней — обратитесь к врачу.',
+            yellow: 'Рекомендуем записаться к специалисту в ближайшие 1–2 дня. При ухудшении состояния, повышении температуры или появлении новых симптомов — вызовите скорую.',
+            red: '‼️ СРОЧНО! Выявлены симптомы, требующие немедленной медицинской помощи. НЕМЕДЛЕННО вызовите скорую помощь по номеру 103 или 112. Не занимайтесь самолечением!'
+        };
+        let recommendation = urgencyLabels[urgency] || urgencyLabels.green;
+
+        // Персонализация
+        if (age) {
+            if (age > 65) {
+                recommendation += ' Учитывая ваш возраст (пожилой), будьте особенно внимательны: даже лёгкие симптомы могут быть опасны.';
+            }
+            if (age < 3) {
+                recommendation += ' Для ребёнка раннего возраста обязательно покажитесь педиатру, даже при лёгких симптомах.';
+            }
+            if (age >= 3 && age < 14) {
+                recommendation += ' Для ребёнка рекомендуется консультация педиатра при сохранении симптомов более суток.';
+            }
+            if (age >= 40 && (text.includes('груди') || text.includes('сердце'))) {
+                recommendation += ' Учитывая возраст старше 40 лет и жалобы на грудную боль, исключите сердечно-сосудистую патологию.';
+            }
+        }
+
+        if (gender === 'female' && text.includes('живот')) {
+            recommendation += ' При болях внизу живота у женщин необходимо исключить гинекологическую патологию.';
+        }
+
+        if (conditions && conditions.trim()) {
+            recommendation += ' Учитывая указанные хронические заболевания, решение о лечении должен принимать только лечащий врач.';
+        }
+
+        if (weight && weight > 100 && (text.includes('одышка') || text.includes('дыхание'))) {
+            recommendation += ' Избыточный вес может усугублять дыхательную недостаточность — обратитесь к врачу.';
+        }
+
+        return {
+            foundSymptoms: [...new Set(foundItems.flatMap(i => i.matchedKeywords))],
+            possibleStates: sortedStates.slice(0, 5),
+            specialists: specialists,
+            urgency: urgency,
+            selfHelp: selfHelpItems.join('. ') || 'Отдых, обильное питьё, наблюдение за состоянием.',
+            sources: sources.length ? sources : ['Клинические рекомендации Минздрава РФ, ВОЗ'],
+            recommendation: recommendation,
+            detectedTemp: maxTemp || null
+        };
+    }
+
+    // ================================================================
+    // UI
+    // ================================================================
+    const form = document.getElementById('symptomForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loader = document.getElementById('loader');
+    const resultDiv = document.getElementById('result');
+
+    const urgencyMap = {
+        green: { class: 'urgency-green', label: '🟢 Низкая срочность', text: 'Плановое обращение к врачу' },
+        yellow: { class: 'urgency-yellow', label: '🟡 Средняя срочность', text: 'Обратиться в ближайшие 1–2 дня' },
+        red: { class: 'urgency-red', label: '🔴 ВЫСОКАЯ СРОЧНОСТЬ!', text: 'Немедленно вызвать скорую!' }
+    };
+
+    // ===== ИМТ-калькулятор =====
+    const bmiBtn = document.getElementById('bmiBtn');
+    const bmiResult = document.getElementById('bmiResult');
+    const bmiValue = document.getElementById('bmiValue');
+    const bmiCategory = document.getElementById('bmiCategory');
+    const bmiDescription = document.getElementById('bmiDescription');
+
+    bmiBtn.addEventListener('click', function() {
+        const weight = parseFloat(document.getElementById('bmiWeight').value);
+        const height = parseFloat(document.getElementById('bmiHeight').value);
+
+        if (!weight || !height || weight < 10 || height < 50) {
+            alert('Пожалуйста, введите корректные значения веса (кг) и роста (см).');
+            return;
+        }
+
+        const bmi = calculateBMI(weight, height);
+        if (bmi === null) {
+            alert('Ошибка расчёта. Проверьте введённые данные.');
+            return;
+        }
+
+        const info = getBMICategory(bmi);
+        bmiValue.textContent = bmi.toFixed(1);
+        bmiCategory.textContent = info.category;
+        bmiCategory.className = 'bmi-category ' + info.class;
+        bmiDescription.textContent = info.desc;
+        bmiResult.style.display = 'block';
+
+        // Автоматически подставляем вес в основную форму
+        document.getElementById('weight').value = weight;
+    });
+
+    // ===== Быстрые теги =====
+    document.querySelectorAll('.quick-tag').forEach(tag => {
+        tag.addEventListener('click', function() {
+            const text = this.dataset.text;
+            document.getElementById('symptoms').value = text;
+            document.getElementById('symptoms').focus();
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => { this.style.transform = ''; }, 150);
+        });
+    });
+
+    // ===== Отправка формы =====
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const symptoms = document.getElementById('symptoms').value.trim();
+        if (!symptoms) {
+            alert('Пожалуйста, опишите ваши симптомы.');
+            document.getElementById('symptoms').focus();
+            return;
+        }
+
+        const age = parseInt(document.getElementById('age').value) || null;
+        const gender = document.getElementById('gender').value;
+        const weight = parseFloat(document.getElementById('weight').value) || null;
+        const conditions = document.getElementById('conditions').value.trim();
+
+        // UI: загрузка
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loader-spinner" style="width:22px;height:22px;border-width:3px;"></span> Анализируем...';
+        loader.style.display = 'block';
+        resultDiv.style.display = 'none';
+
+        setTimeout(() => {
+            const result = analyzeSymptoms(symptoms, age, gender, weight, conditions);
+
+            loader.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="icon">🔍</span> Анализировать симптомы';
+
+            if (result.error) {
+                alert(result.message);
+                return;
+            }
+
+            renderResult(result, weight);
+            resultDiv.style.display = 'block';
+            resultDiv.style.animation = 'none';
+            requestAnimationFrame(() => {
+                resultDiv.style.animation = 'fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+            });
+
+            setTimeout(() => {
+                document.querySelectorAll('.prob-bar').forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => { bar.style.width = width; }, 50);
+                });
+            }, 100);
+
+        }, 600 + Math.random() * 400);
+    });
+
+    // ===== Рендеринг результатов =====
+    function renderResult(data, userWeight) {
+        // Urgency
+        const urgencyInfo = urgencyMap[data.urgency] || urgencyMap.green;
+        const urgencyBlock = document.getElementById('urgencyBlock');
+        urgencyBlock.className = `result-urgency ${urgencyInfo.class}`;
+        urgencyBlock.innerHTML = `
+            <span style="font-size:30px;">${urgencyInfo.label.split(' ')[0]}</span>
+            <span>${urgencyInfo.label}</span>
+        `;
+        document.getElementById('urgencyLabel').textContent = urgencyInfo.text;
+
+        // Specialist
+        document.getElementById('specialistInfo').textContent = data.specialists.join(' → ') || 'Терапевт (общая практика)';
+
+        // States
+        const statesList = document.getElementById('statesList');
+        statesList.innerHTML = '';
+        if (data.possibleStates.length === 0) {
+            statesList.innerHTML = '<li style="color:#7a9ab8; justify-content:center;">Не удалось определить возможные состояния</li>';
+        } else {
+            for (const s of data.possibleStates) {
+                const li = document.createElement('li');
+                const prob = Math.min(s.probability, 95);
+                li.innerHTML = `
+                    <span class="state-name">${s.name}</span>
+                    <span style="display:flex; align-items:center; gap:10px;">
+                        <span class="state-prob">${prob}%</span>
+                        <span class="prob-bar-wrap"><span class="prob-bar" style="width:${prob * 0.8}%;"></span></span>
+                    </span>
+                `;
+                statesList.appendChild(li);
+            }
+        }
+
+        // Self-help
+        document.getElementById('selfHelpInfo').textContent = data.selfHelp || 'Отдых, обильное питьё, наблюдение за состоянием.';
+
+        // Recommendation
+        document.getElementById('recommendationInfo').textContent = data.recommendation;
+
+        // Sources
+        document.getElementById('sourcesInfo').textContent = data.sources.join('; ') || 'Клинические рекомендации Минздрава РФ, ВОЗ';
+
+        // Found symptoms
+        const tagsContainer = document.getElementById('foundSymptomsTags');
+        if (data.foundSymptoms && data.foundSymptoms.length) {
+            tagsContainer.innerHTML = data.foundSymptoms.map(s =>
+                `<span class="chip chip-matched">${s}</span>`
+            ).join(' ');
+        } else {
+            tagsContainer.textContent = '—';
+        }
+
+        // Если определена температура — показываем
+        const block = document.getElementById('foundSymptomsBlock');
+        const oldTemp = block.querySelector('.temp-note');
+        if (oldTemp) oldTemp.remove();
+
+        if (data.detectedTemp) {
+            const tempNote = document.createElement('div');
+            tempNote.style.cssText = 'margin-top:10px; font-size:14px; color:#1a5f8a; background:#e8f0fe; padding:8px 14px; border-radius:10px; width:100%;';
+            tempNote.innerHTML = `🌡️ Определена температура: <strong>${data.detectedTemp}°C</strong>`;
+            tempNote.className = 'temp-note';
+            block.appendChild(tempNote);
+        }
+
+        // ===== Показываем ИМТ в результатах =====
+        const resultBmiBlock = document.getElementById('resultBmiBlock');
+        if (userWeight) {
+            const height = parseFloat(document.getElementById('bmiHeight').value) ||
+                          parseFloat(document.getElementById('height').value) || null;
+            if (height && height > 50) {
+                const bmi = calculateBMI(userWeight, height);
+                if (bmi !== null) {
+                    const info = getBMICategory(bmi);
+                    resultBmiBlock.style.display = 'block';
+                    document.getElementById('resultBmiValue').innerHTML =
+                        `<strong>${bmi.toFixed(1)}</strong> — ${info.category} (${info.desc})`;
+                }
+            } else {
+                // Если роста нет, но вес есть
+                resultBmiBlock.style.display = 'block';
+                document.getElementById('resultBmiValue').textContent =
+                    `${userWeight} кг (для расчёта ИМТ укажите рост в калькуляторе выше)`;
+            }
+        } else {
+            resultBmiBlock.style.display = 'none';
+        }
+    }
+
+    // ===== Пример при загрузке =====
+    window.addEventListener('DOMContentLoaded', function() {
+        const example = 'головная боль, температура 38, слабость';
+        document.getElementById('symptoms').value = example;
+        document.getElementById('symptoms').placeholder = 'Например: ' + example;
+    });
+
+})();
+</script>
+</body>
+</html>
